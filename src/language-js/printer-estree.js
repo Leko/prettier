@@ -3176,11 +3176,17 @@ function printPathNoParens(path, options, print, args) {
     case "TSVoidKeyword":
       return "void";
     case "TSAsExpression":
-      return concat([
-        path.call(print, "expression"),
-        " as ",
-        path.call(print, "typeAnnotation")
-      ]);
+      return group(
+        concat([
+          path.call(print, "expression"),
+          " as ",
+          indent(
+            group(
+              concat([softline, concat([path.call(print, "typeAnnotation")])])
+            )
+          )
+        ])
+      );
     case "TSArrayType":
       return concat([path.call(print, "elementType"), "[]"]);
     case "TSPropertySignature": {
@@ -5740,7 +5746,8 @@ function printAssignmentRight(leftNode, rightNode, printedRight, options) {
       // do not put values on a separate line from the key in json
       options.parser !== "json" &&
       options.parser !== "json5") ||
-    rightNode.type === "SequenceExpression";
+    rightNode.type === "SequenceExpression" ||
+    rightNode.type === "TSAsExpression";
 
   if (canBreak) {
     return group(indent(concat([line, printedRight])));
